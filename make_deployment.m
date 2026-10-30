@@ -112,3 +112,4 @@ for k = 1:n
 end
 tf = all(R(:));
 end
+
