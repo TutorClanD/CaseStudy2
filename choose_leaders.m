@@ -41,7 +41,7 @@ working = true(n, 1);
 working(faulty) = false;
 m = min(m, nnz(working));
 
-H = 4;                                   % number of hops of influence considered (Needs to be Tested and changed)
+H = 3;                                  % number of hops of influence (Test & Confirmed)
 
 % ---- structure from G (Part I tools: degrees, products/powers of G) ----
 d = G*ones(n, 1);                        % degree vector
@@ -49,21 +49,21 @@ W = (eye(n) + G) ./ (d + 1);             % (I + D)^-1 (I + G): row i scaled by 1
 K = zeros(n);
 Wh = eye(n);
 for h = 1:H
-    Wh = Wh*W;                           % W^h: where an h-hop average of j's neighborhood comes from
-    K = K + Wh/H;                        % K(j,i): how strongly robot i influences robot j
+    Wh = Wh*W;                           
+    K = K + Wh/H;                        
 end
 
 % ---- need: distance^2 to g, discounted when j mostly listens to faulty robots ----
-dist2 = sum((P0 - g).^2, 2);             % squared distance of each robot from g
-toFaulty = min(1, sum(K(:, faulty), 2)); % share of j's influence that comes from faulty robots
+dist2 = sum((P0 - g).^2, 2);     
+toFaulty = min(1, sum(K(:, faulty), 2)); 
 need = dist2 .* (1 - toFaulty) .* working;
 
 % ---- greedy selection with diminishing returns ----
-Kn = K / max(K(:));                      % influence scaled into [0,1] so coverage is a fraction
-resid = ones(n, 1);                      % fraction of each robot's need not yet covered
+Kn = K / max(K(:));                      
+resid = ones(n, 1);                    
 S = zeros(1, m);
 for t = 1:m
-    gain = ((need .* resid)' * K)';      % value of making each robot a leader
+    gain = ((need .* resid)' * K)';     
     gain(~working) = -Inf;
     gain(S(1:t-1)) = -Inf;
     [~, i] = max(gain);
